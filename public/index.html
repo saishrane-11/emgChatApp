@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <style>
+        /* General Styles */
+
+
+        #chatSection {
+            display: flex;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Users Section */
+        .users {
+            width: 25%;
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px;
+            border-right: 1px solid #34495e;
+        }
+
+        .users h3 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 10px;
+        }
+
+        #userList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #userList li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #34495e;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #userList li:hover {
+            background-color: #1abc9c;
+        }
+
+        /* Chat Section */
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #chatHeader {
+            margin-top: 0;
+            font-size: 20px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        #chatBox {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .message-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        #messageInput {
+            flex: 1;
+            /* Takes up most of the available space */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 15px;
+            /* Reduced padding to make buttons narrower */
+            border: none;
+            border-radius: 5px;
+            background-color: #1abc9c;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto;
+            /* Let the button width adjust to content */
+        }
+
+        button:hover {
+            background-color: #16a085;
+        }
+
+        button:active {
+            background-color: #149174;
+        }
+
+        /* Make the Send Location button even narrower */
+        button:nth-child(3) {
+            padding: 10px;
+            /* Further reduce padding */
+            width: auto;
+            /* Adjust width to content */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #chatSection {
+                flex-direction: column;
+            }
+
+            .users {
+              width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #34495e;
+            }
+
+            .chat {
+                padding: 10px;
+            }
+
+            .message-box {
+                flex-direction: column;
+            }
+
+            #messageInput {
+                width: 100%;
+                /* Full width on small screens */
+            }
+
+            button {
+                width: 100%;
+                /* Full width on small screens */
+            }
+        }
+    </style>
+  <style>
+    /* From Uiverse.io by andrew-demchenk0 */
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f0f0; /* Optional: Add a background color */
+    }
+
+    .wrapper {
+        --input-focus: #2d8cf0;
+        --font-color: #323232;
+        --font-color-sub: #666;
+        --bg-color: #fff;
+        --bg-color-alt: #666;
+        --main-color: #323232;
+        width: 100%;
+        max-width: 400px; /* Adjust as needed */
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    /* switch card */
+    .switch {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        width: 100%;
+    }
+
+    .card-side::before {
+        position: absolute;
+        content: 'Log in';
+        left: -70px;
+        top: 0;
+        width: 100px;
+        text-decoration: underline;
+        color: var(--font-color);
+        font-weight: 600;
+    }
+
+    .card-side::after {
+        position: absolute;
+        content: 'Sign up';
+        left: 70px;
+        top: 0;
+        width: 100px;
+        text-decoration: none;
+        color: var(--font-color);
+        font-weight: 600;
+    }
+
+    .toggle {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        top: 45px;
+    position: relative;
+    left: 22px;
+
+        height: 25px;
+        width: 50px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        box-shadow: 4px 4px var(--main-color);
+        /* position: absolute; */
+        cursor: pointer;
+        /* top: 0; */
+        /* left: 0; */
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-color);
+        transition: 0.3s;
+    }
+
+    .slider:before {
+        box-sizing: border-box;
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        border: 2px solid var(--main-color);
+        border-radius: 5px;
+        left: -2px;
+        bottom: 2px;
+        background-color: var(--bg-color);
+        box-shadow: 0 3px 0 var(--main-color);
+        transition: 0.3s;
+    }
+
+    .toggle:checked+.slider {
+        background-color: var(--input-focus);
+    }
+
+    .toggle:checked+.slider:before {
+        transform: translateX(30px);
+    }
+
+    .toggle:checked~.card-side:before {
+        text-decoration: none;
+    }
+
+    .toggle:checked~.card-side:after {
+        text-decoration: underline;
+    }
+
+    /* card */
+    .flip-card__inner {
+        width: 100%;
+        max-width: 300px;
+        height: 350px;
+        position: relative;
+        background-color: transparent;
+        perspective: 1000px;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        margin: 0 auto; /* Center the card */
+    }
+
+    .toggle:checked~.flip-card__inner {
+        transform: rotateY(180deg);
+    }
+
+    .toggle:checked~.flip-card__front {
+        box-shadow: none;
+    }
+
+    .flip-card__front,
+    .flip-card__back {
+        padding: 20px;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        background: lightgrey;
+        gap: 20px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        box-shadow: 4px 4px var(--main-color);
+        width: 100%;
+        height: 100%;
+    }
+
+    .flip-card__back {
+        transform: rotateY(180deg);
+    }
+
+    .flip-card__form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .title {
+        margin-top: 10px;
+        font-size: 25px;
+        font-weight: 900;
+        text-align: center;
+        color: var(--main-color);
+    }
+
+    .flip-card__input {
+        width: 100%;
+        max-width: 250px;
+        height: 25px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        background-color: var(--bg-color);
+        box-shadow: 4px 4px var(--main-color);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--font-color);
+        padding: 5px 10px;
+        outline: none;
+    }
+
+    .flip-card__input::placeholder {
+        color: var(--font-color-sub);
+        opacity: 0.8;
+    }
+
+    .flip-card__input:focus {
+        border: 2px solid var(--input-focus);
+    }
+
+    .flip-card__btn:active,
+    .button-confirm:active {
+        box-shadow: 0px 0px var(--main-color);
+        transform: translate(3px, 3px);
+    }
+
+    .flip-card__btn {
+        margin: 20px 0 20px 0;
+        width: 120px;
+        height: 40px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        background-color: var(--bg-color);
+        box-shadow: 4px 4px var(--main-color);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--font-color);
+        cursor: pointer;
+    }
+</style>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <!-- From Uiverse.io by andrew-demchenk0 -->
+    <div id="authSection" class="wrapper" style="position: absolute;top: 10px;">
+        <div class="card-switch">
+            <label class="switch">
+                <div></div>
+                <input style="width: 10px;" type="checkbox" class="toggle">
+                <span class="slider"></span>
+                <span class="card-side" style="position: relative;"></span>
+                <div class="flip-card__inner">
+                    <div class="flip-card__front">
+                        <div class="title">Register</div>
+                        <div class="flip-card__form" action="">
+                            <input class="flip-card__input" name="email" placeholder="Email" type="email" id="regEmail" required>
+                            <input class="flip-card__input" name="username" placeholder="username" type="text" id="regUsername" required>
+                            <input class="flip-card__input" name="regPassword" type="password" id="regPassword" placeholder="Enter password" required>
+                            <input class="flip-card__input" type="phone" id="regPhone" placeholder="Enter phone" required>
+                            <button onclick="register()" class="flip-card__btn">Let`s go!</button>
+                        </div>
+                    </div>
+                    <div style="right: 10px;" class="flip-card__back">
+                        <div class="title">Sign up</div>
+                        <div class="flip-card__form" action="">
+                            <input class="flip-card__input" id="loginUsername" placeholder="Enter Username" type="text" required>
+                            <input class="flip-card__input" id="loginPassword" name="password" placeholder="Password" type="password" required>
+                            <button onclick="login()" class="flip-card__btn">Confirm!</button>
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
+    </div>
+    <!-- <div id="authSection">
+        <h2>Register</h2>
+        <input type="email" id="regEmail" placeholder="Enter email" required>
+        <input type="text" id="regUsername" placeholder="Enter username" required>
+        <input type="password" id="regPassword" placeholder="Enter password" required>
+        <input type="phone" id="regPhone" placeholder="Enter phone" required>
+        <button onclick="register()">Register</button>
+
+        <h2>Login</h2>
+        <input type="text" id="loginUsername" placeholder="Enter username" required>
+        <input type="password" id="loginPassword" placeholder="Enter password" required>
+        <button onclick="login()">Login</button>
+    </div> -->
+
+
+
+    <div id="chatSection" style="display: none;">
+        <div class="users" id="leftUser" >
+            <h3>Users</h3>
+            <ul id="userList"></ul>
+        </div>
+
+        <div class="chat" id="rightChat">
+            <h3 id="chatHeader">Select a user to chat</h3>
+            <div id="chatBox"></div>
+            <div class="message-box">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="sendLocation()">📍 Send Location</button>
+                <button onclick="makeACall()">Call</button>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

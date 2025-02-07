@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div id="chatSection" style="">
+        <div class="users">
+            <h3>Users</h3>
+            <ul id="userList"></ul>
+        </div>
+
+        <div class="chat">
+            <h3 id="chatHeader">Select a user to chat</h3>
+            <div id="chatBox"></div>
+            <div class="message-box">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="sendLocation()">📍 Send Location</button>
+
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

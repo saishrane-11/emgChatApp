@@ -1,0 +1,57 @@
+body {
+    background-color: gray;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+#authSection, #chatSection {
+    width: 300px;
+    
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+}
+
+button {
+    width: auto;
+    padding: 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#chatSection {
+    display: flex;
+    width: 80%;
+    margin-top: 20px;
+}
+
+.users {
+    
+    border-right: 1px solid #ccc;
+    padding: 10px;
+}
+
+.chat {
+    padding: 10px;
+}
+
+.message-box {
+    display: flex;
+    gap: 10px;
+}
+#chatBox>div{
+    
+}
+#chatBox>div>button{
+    background-color: transparent;
+    width: 10px;
+}
