@@ -32,16 +32,17 @@ function register() {
                 body: JSON.stringify({ username, password, latitude, longitude,phone,email })
             }).then(res => res.json())
                 .then(data => {
-
-
-                   
                         alert(data.message);
                         localStorage.setItem("isValidUser", "true");
                         localStorage.setItem("isValidUserName", username);
-                    
-                   
                     loadUserList();
                 });
+        },   error => {
+            alert("Failed to get location. Please allow location access.");
+        }, {
+            enableHighAccuracy: true,  // Get the most precise location
+            timeout: 10000,            // Max wait time for response
+            maximumAge: 0              // Always fetch fresh location
         })
     };
 
@@ -367,8 +368,12 @@ function sendLocation() {
             const locationMessage = `📍 <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank">My Location</a>`;
 
             socket.emit("send-message", { sender: currentUser, receiver: selectedUser, message: locationMessage });
-        }, () => {
+        },   error => {
             alert("Failed to get location. Please allow location access.");
+        }, {
+            enableHighAccuracy: true,  // Get the most precise location
+            timeout: 10000,            // Max wait time for response
+            maximumAge: 0              // Always fetch fresh location
         });
     } else {
         alert("Geolocation is not supported by this browser.");
